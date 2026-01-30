@@ -76,7 +76,16 @@
 	                }
 
 	                if (bestMatch) {
-	                	const downloadUrl = `https://registry.npmjs.org/${packageName}/-/${packageName}-${bestMatch}.tgz`;
+	                	const bestPkg = data.versions[bestMatch];
+
+						// Prefer the authoritative tarball URL from the registry response.
+						// Correctly handles scoped packages like "@flowfuse/node-red-dashboard".
+						const downloadUrlFromRegistry = bestPkg?.dist?.tarball;
+						
+						// Fallback (if dist.tarball is missing for some reason)
+						const fileName = packageName.startsWith("@") ? packageName.split("/")[1] : packageName;
+						const downloadUrl = downloadUrlFromRegistry || `https://registry.npmjs.org/${packageName}/-/${fileName}-${bestMatch}.tgz`;
+
 	                    	const npmUrl = `https://www.npmjs.com/package/${packageName}/v/${bestMatch}`;
 				
 				viewNpmButton.onclick = () => window.open(npmUrl, "_blank");
@@ -183,3 +192,4 @@
 	        let minVersion = required.replace("^", "").replace("~", "").trim();
         	return current.startsWith(minVersion.split(".")[0]); // Approximate match
         }
+
