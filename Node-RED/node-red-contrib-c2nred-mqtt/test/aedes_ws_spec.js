@@ -23,7 +23,7 @@ describe('Aedes Broker Websocket tests', function () {
     helper.load([aedesNode, mqttNode], [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         mqtt_ws_port: '8080',
@@ -32,7 +32,7 @@ describe('Aedes Broker Websocket tests', function () {
         ]
       }, {
         id: 'n11',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1884',
         name: 'Aedes 1884',
         mqtt_ws_port: '8080',
@@ -55,7 +55,7 @@ describe('Aedes Broker Websocket tests', function () {
     const flow = [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         mqtt_ws_port: '8080',
         name: 'Aedes 1883',
@@ -116,7 +116,7 @@ describe('Aedes Broker Websocket tests', function () {
     const flow = [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         mqtt_ws_bind: 'path',
         mqtt_ws_path: '/mqtt',

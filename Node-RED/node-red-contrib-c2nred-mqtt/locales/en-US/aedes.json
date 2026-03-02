@@ -16,8 +16,10 @@
       "persistence_bind": "Persistence",
       "persistence_memory": "Memory",
       "persistence_mongodb": "MongoDB",
-      "persistence_level": "LevelDB",
-      "dburl": "DB Url"
+      "persistence_jsonpath_local": "LocalJSON2",
+      "persistence_json": "Memory+SQL",
+      "dburl": "DB Url",
+      "jsonpath_local": "JSON File Path"
     },
     "placeholder": {
       "mqtt_port": "Enter MQTT port",
@@ -26,6 +28,8 @@
       "cert": "path to certificate (PEM format)",
       "key": "path to private key (PEM format)",
       "dburl": "mongodb://localhost:27017/mqtt",
+      "jsonpath_local": "default is /usr/local/nred-work/aedes_state.json",
+      "jsonpath_sd": "default is /run/media/mmcblk0p1/aedes_state.json",
       "username": "leave blank to disable authentication",
       "password": "leave blank to disable authentication"
     },

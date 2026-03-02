@@ -20,7 +20,7 @@ describe('Aedes Broker Last Will tests', function () {
   it('should be loaded', function (done) {
     const flow = [{
       id: 'n1',
-      type: 'aedes broker',
+      type: 'c2nred broker',
       mqtt_port: '1883',
       name: 'Aedes 1883',
       wires: [
@@ -39,7 +39,7 @@ describe('Aedes Broker Last Will tests', function () {
     const flow = [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [

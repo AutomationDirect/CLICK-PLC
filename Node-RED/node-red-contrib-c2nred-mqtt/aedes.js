@@ -27,6 +27,7 @@ module.exports = function (RED) {
   const http = require('http');
   const https = require('https');
   const ws = require('websocket-stream');
+  const SQLitePersistence = require('./sqlite-persistence-v3-inmemory')
 
   let serverUpgradeAdded = false;
   const listenerNodes = {};
@@ -89,6 +90,15 @@ module.exports = function (RED) {
         }
       });
 	  */
+   /*
+    } else if (config.persistence_bind === 'sqlite' && config.dburl) {
+      aedesSettings.persistence = SQLitePersistence({
+        url: config.dburl
+      })
+    */
+    } else if (config.persistence_bind === 'json') {
+      aedesSettings.persistence = SQLitePersistence();
+      node.log('Start persistence to SQLite');
     }
 
     if ((this.cert) && (this.key) && (this.usetls)) {
@@ -97,6 +107,12 @@ module.exports = function (RED) {
     }
 
     const broker = aedes.createBroker(aedesSettings);
+
+    // if (config.persistence_bind === "json") {
+    //   console.log('entering setup')
+    //   aedesSettings.persistence.setup(broker)
+    // }
+
     let server;
     if (this.usetls) {
       server = tls.createServer(serverOptions, broker.handle);
@@ -370,7 +386,7 @@ module.exports = function (RED) {
     });
   }
 
-  RED.nodes.registerType('aedes broker', AedesBrokerNode, {
+  RED.nodes.registerType('c2nred broker', AedesBrokerNode, {
     credentials: {
       username: { type: 'text' },
       password: { type: 'password' },

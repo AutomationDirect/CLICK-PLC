@@ -16,13 +16,13 @@ You can use the MQTT protocol in Node-RED without an external MQTT broker like M
 -->
 
 ## Background
-This node was created because the node-red-contrib-aedes MQTT Broker had a dependency of a dependency that did not work for the C2-NRED module [node-red-contrib-aedes] (https://github.com/martin-doyle/node-red-contrib-aedes)
+This node was created because the [node-red-contrib-aedes](https://github.com/martin-doyle/node-red-contrib-aedes) MQTT Broker had a dependency of a dependency that did not work for the C2-NRED module.
 ## Installation
 You can install the node directly within the editor by using the [Palette Manager](https://nodered.org/docs/user-guide/editor/palette/manager).
 
 ## Flows
 Just put this node on Node-RED and hit the deploy button. The MQTT Broker will run on your Node-RED instance.
-![flows](./flows.png)
+![flows](./readme_files/flows.png)
 
 ## Features
 - Works with AutomationDirect.com CLICK C2-NRED module
@@ -31,7 +31,7 @@ Just put this node on Node-RED and hit the deploy button. The MQTT Broker will r
 - SSL / TLS
 - Message Persistence (In-memory, LevelDB or MongoDB)
  
-For more information see ???.
+For more information see [AutomationDirect.com C2-NRED Website](https://github.com/AutomationDirect/CLICK-PLC/tree/main/Node-RED/node-red-contrib-c2nred-mqtt)
 
 ## Server without public IP or behind firewall
 If your server is behind a firewall or you cannot open any ports other than the standard http/https ports, the MQTT broker node can be accessible by public clients through a WebSocket path.

@@ -23,7 +23,7 @@ describe('Aedes Broker TCP tests', function () {
   it('should be loaded', function (done) {
     const flow = [{
       id: 'n1',
-      type: 'aedes broker',
+      type: 'c2nred broker',
       mqtt_port: '1883',
       name: 'Aedes 1883',
       wires: [
@@ -43,7 +43,7 @@ describe('Aedes Broker TCP tests', function () {
     helper.load([aedesNode, mqttNode], [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [
@@ -81,7 +81,7 @@ describe('Aedes Broker TCP tests', function () {
     const flow = [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [
@@ -121,7 +121,7 @@ describe('Aedes Broker TCP tests', function () {
     const flow = [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [
@@ -161,7 +161,7 @@ describe('Aedes Broker TCP tests', function () {
     helper.load([aedesNode, mqttNode], [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [
@@ -219,7 +219,7 @@ describe('Aedes Broker TCP tests', function () {
     helper.load([aedesNode, mqttNode], [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [
@@ -243,7 +243,7 @@ describe('Aedes Broker TCP tests', function () {
         port: '1883'
       }, {
         id: 'n11',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1884',
         name: 'Aedes 1884',
         wires: [
@@ -293,7 +293,7 @@ describe('Aedes Broker TCP tests', function () {
     helper.load([aedesNode, mqttNode], [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [
@@ -301,7 +301,7 @@ describe('Aedes Broker TCP tests', function () {
         ]
       }, {
         id: 'n11',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883 2',
         wires: [
@@ -322,7 +322,7 @@ describe('Aedes Broker TCP tests', function () {
     this.timeout(10000); // have to wait for the inject with delay of 10 seconds
     const flow = [{
       id: 'n1',
-      type: 'aedes broker',
+      type: 'c2nred broker',
       mqtt_port: '1883',
       name: 'Aedes 1883',
       wires: [
@@ -356,7 +356,7 @@ describe('Aedes Broker TCP tests', function () {
     const flow = [
       {
         id: 'n1',
-        type: 'aedes broker',
+        type: 'c2nred broker',
         mqtt_port: '1883',
         name: 'Aedes 1883',
         wires: [
