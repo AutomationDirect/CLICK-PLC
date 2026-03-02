@@ -1,0 +1,1139 @@
+[
+    {
+        "id": "7a402f75c58ac72b",
+        "type": "tab",
+        "label": "CLICK Read/Write Example",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c5815b29cf1ae5e2",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[0, 1, 0]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 100,
+        "wires": [
+            [
+                "8c7384e31e098145"
+            ]
+        ]
+    },
+    {
+        "id": "8c7384e31e098145",
+        "type": "CLICK Write",
+        "z": "7a402f75c58ac72b",
+        "name": "Write Y001",
+        "memorytype": "Y",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 430,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7ea008a420705d82",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1, 0, 1]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 140,
+        "wires": [
+            [
+                "8c7384e31e098145"
+            ]
+        ]
+    },
+    {
+        "id": "39a18f0d83fad69e",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 180,
+        "wires": [
+            [
+                "ab106a42794f143e"
+            ]
+        ]
+    },
+    {
+        "id": "ddc20fe517351310",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "f280887f9540c41e",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 590,
+        "y": 180,
+        "wires": [
+            [
+                "ddc20fe517351310"
+            ]
+        ]
+    },
+    {
+        "id": "ab106a42794f143e",
+        "type": "CLICK Read",
+        "z": "7a402f75c58ac72b",
+        "name": "Read Y001",
+        "memorytype": "Y",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "x": 430,
+        "y": 180,
+        "wires": [
+            [
+                "f280887f9540c41e"
+            ]
+        ]
+    },
+    {
+        "id": "0f1df88bd9be7ac4",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "Summary Output Points (Y)",
+        "info": "Outline\n\n(1) Write OFF/ON to Y001-Y003 of CLICK CPU using CLICK Write node.\n(2) Read the values of Y001-Y003 of CLICK CPU using the CLICK Read node.\n(3) If OFF/ON/OFF can be written to Y001-Y003 with the input of the inject node [0,1,0], the pass/fail is set as ok.\n(4) If ON/OFF/ON can be written to Y001-Y003 with the input of the inject node [1,0,1], the pass/fail is set as ok.\n(5) If either (3) or (4) fails, the pass/fail score will be NG.\n(6) If the value written with the CLICK Write node can be read in the input of the inject node, set the pass/fail as OK.\n(7) If the read value is incorrect, set the pass/fail to ng.",
+        "x": 200,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "5e6f5d1121ec4770",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[0, 1, 0]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 280,
+        "wires": [
+            [
+                "c74e1c50c6fe6f80"
+            ]
+        ]
+    },
+    {
+        "id": "c74e1c50c6fe6f80",
+        "type": "CLICK Write",
+        "z": "7a402f75c58ac72b",
+        "name": "C1",
+        "memorytype": "C",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 410,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f6e2ba2ccd6e243f",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1, 0, 1]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 320,
+        "wires": [
+            [
+                "c74e1c50c6fe6f80"
+            ]
+        ]
+    },
+    {
+        "id": "e9f6a15ab2b44dfc",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 360,
+        "wires": [
+            [
+                "7a3702173fa45260"
+            ]
+        ]
+    },
+    {
+        "id": "3c61a1e38e62707f",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "766b9683994725d0",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 590,
+        "y": 360,
+        "wires": [
+            [
+                "3c61a1e38e62707f"
+            ]
+        ]
+    },
+    {
+        "id": "7a3702173fa45260",
+        "type": "CLICK Read",
+        "z": "7a402f75c58ac72b",
+        "name": "Read C1",
+        "memorytype": "C",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "x": 420,
+        "y": 360,
+        "wires": [
+            [
+                "766b9683994725d0"
+            ]
+        ]
+    },
+    {
+        "id": "fb1e8446d0c9c665",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "Summary Control Relays (C)",
+        "info": "Outline\n\n(1) Write OFF/ON to C1-C3 of CLICK CPU using CLICK Write node.\n(2) Read the C1-C3 values of CLICK CPU using the CLICK Read node.\n(3) If OFF/ON/OFF can be written to C1-C3 with the input of the inject node of [0,1,0], the pass/fail is set as ok.\n(4) If ON/OFF/ON can be written to C1-C3 with the input of the inject node [1,0,1], the pass/fail is set as ok.\n(5) If either (3) or (4) fails, the pass/fail score will be NG.\n(6) If the value written with the CLICK Write node can be read in the input of the inject node, set the pass/fail as OK.\n(7) If the read value is incorrect, set the pass/fail to ng.",
+        "x": 200,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d89ca97ab5295685",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[11, 12, 13]",
+        "payloadType": "json",
+        "x": 220,
+        "y": 460,
+        "wires": [
+            [
+                "fd0385503e654c92"
+            ]
+        ]
+    },
+    {
+        "id": "c89316730fb2ea34",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "Summary Data Registers (DS)",
+        "info": "Outline\n\n(1) Use the CLICK Write node to write values to DS1-DS3 of the CLICK CPU.\n(2) Use the CLICK Read node to read the values of DS1-DS3 of the CLICK CPU.\n(3) If 11/ 12/ 13 can be written to DS1-DS3 with the input of the inject node [11, 12, 13], pass/fail is set as ok.\n(4) If 1/ 2/ 3 can be written to DS1-DS3 with the input of the inject node [1, 2, 3], pass/fail is set as OK.\n(5) If either (3) or (4) fails, the pass/fail score will be ng.\n(6) If the value written with the CLICK Write node can be read by the input of the inject node, set the pass/fail as OK.\n(7) If the read value is incorrect, set the pass/fail to ng.",
+        "x": 200,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "fd0385503e654c92",
+        "type": "CLICK Write",
+        "z": "7a402f75c58ac72b",
+        "name": "Write DS1",
+        "memorytype": "DS",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 430,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a26a2e4d4f50b6e9",
+        "type": "CLICK Read",
+        "z": "7a402f75c58ac72b",
+        "name": "Read DS1",
+        "memorytype": "DS",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "x": 430,
+        "y": 540,
+        "wires": [
+            [
+                "d9f0afa4f978024d"
+            ]
+        ]
+    },
+    {
+        "id": "a6a4a762b2c88673",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 540,
+        "wires": [
+            [
+                "a26a2e4d4f50b6e9"
+            ]
+        ]
+    },
+    {
+        "id": "d01eeb5855f4ce72",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "539aa1e248d704ca",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1, 2, 3]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 500,
+        "wires": [
+            [
+                "fd0385503e654c92"
+            ]
+        ]
+    },
+    {
+        "id": "d9f0afa4f978024d",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 590,
+        "y": 540,
+        "wires": [
+            [
+                "d01eeb5855f4ce72"
+            ]
+        ]
+    },
+    {
+        "id": "7ae9223e69bbd21f",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[11, 12, 13]",
+        "payloadType": "json",
+        "x": 220,
+        "y": 820,
+        "wires": [
+            [
+                "b2629f24f0b3c778"
+            ]
+        ]
+    },
+    {
+        "id": "e61a8b516fd23c37",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "Summary Counter Registers (CTD)",
+        "info": "Outline\n\n(1) Use the CLICK Write node to write values to CTD1-CTD3 of the CLICK CPU.\n(2) Read the values of CTD1-CTD3 of CLICK CPU using the CLICK Read node.\n(3) If 11/ 12/ 13 can be written to CTD1-CTD3 with the input of the inject node [11,12,13], the pass/fail is set as ok.\n(4) If 1/ 2/ 3 can be written to CTD1-CTD3 with the input of the inject node [1,2,3], pass/fail is set as OK.\n(5) If either (3) or (4) fails, the pass/fail score will be ng.\n(6) If the value written with the CLICK Write node can be read by the input of the inject node, set the pass/fail as OK.\n(7) If the read value is incorrect, set the pass/fail to ng.",
+        "x": 220,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "b2629f24f0b3c778",
+        "type": "CLICK Write",
+        "z": "7a402f75c58ac72b",
+        "name": "Write CTD1",
+        "memorytype": "CTD",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 430,
+        "y": 820,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1e3359b9ed213852",
+        "type": "CLICK Read",
+        "z": "7a402f75c58ac72b",
+        "name": "Read CTD1",
+        "memorytype": "CTD",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "x": 430,
+        "y": 900,
+        "wires": [
+            [
+                "52d75c14b7c3054a"
+            ]
+        ]
+    },
+    {
+        "id": "8bbb63d39a35826d",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 900,
+        "wires": [
+            [
+                "1e3359b9ed213852"
+            ]
+        ]
+    },
+    {
+        "id": "38f62a681aa64f7f",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "f38d204e875ca0ec",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1, 2, 3]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 860,
+        "wires": [
+            [
+                "b2629f24f0b3c778"
+            ]
+        ]
+    },
+    {
+        "id": "52d75c14b7c3054a",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 590,
+        "y": 900,
+        "wires": [
+            [
+                "38f62a681aa64f7f"
+            ]
+        ]
+    },
+    {
+        "id": "96e2dd3528b2af4b",
+        "type": "CLICK SystemInfo Read",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "memorytype": "SD",
+        "memoryaddress": "1",
+        "memorysize": "1",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 430,
+        "y": 1220,
+        "wires": [
+            [
+                "5172f12577512c8a"
+            ]
+        ]
+    },
+    {
+        "id": "039200c9576be807",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 1220,
+        "wires": [
+            [
+                "96e2dd3528b2af4b",
+                "06530cbec76b8021",
+                "1ae675cd235f7c1a"
+            ]
+        ]
+    },
+    {
+        "id": "883dbe69453bf755",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 850,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "5172f12577512c8a",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 650,
+        "y": 1220,
+        "wires": [
+            [
+                "883dbe69453bf755"
+            ]
+        ]
+    },
+    {
+        "id": "e6fde3ab0dd88c53",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "Summary System Data Registers (SD)",
+        "info": "Outline\n\n(1) Use the CLICK Read node to read the values of DS1-DS3 of the CLICK CPU.\n(2) Use the CLICK Read node to read the values of DS1-DS3 of the CLICK CPU.\n(3) If 11/ 12/ 13 can be written to DS1-DS3 with the input of the inject node [11, 12, 13], pass/fail is set as ok.\n(4) If 1/ 2/ 3 can be written to DS1-DS3 with the input of the inject node [1, 2, 3], pass/fail is set as OK.\n(5) If either (3) or (4) fails, the pass/fail score will be ng.\n(6) If the value written with the CLICK Write node can be read by the input of the inject node, set the pass/fail as OK.\n(7) If the read value is incorrect, set the pass/fail to ng.",
+        "x": 230,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "06530cbec76b8021",
+        "type": "CLICK SystemInfo Read",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "memorytype": "SD",
+        "memoryaddress": "5",
+        "memorysize": "2",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 430,
+        "y": 1320,
+        "wires": [
+            [
+                "074568390af751b6",
+                "65bd699301c2e7fc"
+            ]
+        ]
+    },
+    {
+        "id": "e297fe934d3f064f",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 850,
+        "y": 1320,
+        "wires": []
+    },
+    {
+        "id": "074568390af751b6",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 650,
+        "y": 1320,
+        "wires": [
+            [
+                "e297fe934d3f064f"
+            ]
+        ]
+    },
+    {
+        "id": "1ae675cd235f7c1a",
+        "type": "CLICK SystemInfo Read",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "memorytype": "SD",
+        "memoryaddress": "10",
+        "memorysize": "1",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 430,
+        "y": 1420,
+        "wires": [
+            [
+                "070f52ccca708c77"
+            ]
+        ]
+    },
+    {
+        "id": "04f421703818fd9f",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 850,
+        "y": 1420,
+        "wires": []
+    },
+    {
+        "id": "070f52ccca708c77",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 650,
+        "y": 1420,
+        "wires": [
+            [
+                "04f421703818fd9f"
+            ]
+        ]
+    },
+    {
+        "id": "d55b41181ddbc238",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "SD1- PLC Error Code",
+        "info": "Outline\n\n(1) Use the CLICK Read node to read the values of SD1 of the CLICK CPU.\n",
+        "x": 420,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "ad2a277a2efc3ff1",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "SD5-6 PLC Firmware Version",
+        "info": "Outline\n\n(1) Use the CLICK Read node to read the values of SD5-6 of the CLICK CPU.\n",
+        "x": 440,
+        "y": 1280,
+        "wires": []
+    },
+    {
+        "id": "934a1bfaad79f17f",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "SD7 Current Scan Time",
+        "info": "Outline\n\n(1) Use the CLICK Read node to read the values of SD7 of the CLICK CPU.\n",
+        "x": 420,
+        "y": 1380,
+        "wires": []
+    },
+    {
+        "id": "af5103fcbc42c6bf",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "SD200-203 WLAN IP Address",
+        "info": "Outline\n\n(1) Use the CLICK Read node to read the values of SD200-203 WLAN IP Address of the CLICK CPU.\n",
+        "x": 440,
+        "y": 1480,
+        "wires": []
+    },
+    {
+        "id": "1dcbf9830f95e708",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload",
+                "v": "[11, 12, 13]",
+                "vt": "json"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[11, 12, 13]",
+        "payloadType": "json",
+        "x": 220,
+        "y": 640,
+        "wires": [
+            [
+                "be9de6f3534a97dc"
+            ]
+        ]
+    },
+    {
+        "id": "3a1ceb265e9cfc51",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "Summary Timer Registers TD",
+        "info": "Outline\n\n(1) Use the CLICK Write node to write values to TD1-TD3 of the CLICK CPU.\n(2) Read the values of TD1-TD3 of CLICK CPU using the CLICK Read node.\n(3) If 11/ 12/ 13 can be written to TD1-TD3 with the input of the inject node [11,12,13], pass/fail is set as OK.\n(4) If 1/ 2/ 3 can be written to TD1-TD3 with the input of the inject node [1,2,3], pass/fail is set as OK.\n(5) If either (3) or (4) fails, the pass/fail score will be ng.\n(6) If the value written with the CLICK Write node can be read by the input of the inject node, set the pass/fail as OK.\n(7) If the read value is incorrect, set the pass/fail to ng.",
+        "x": 200,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "be9de6f3534a97dc",
+        "type": "CLICK Write",
+        "z": "7a402f75c58ac72b",
+        "name": "Write TD1",
+        "memorytype": "TD",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 420,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eb58686781176cc9",
+        "type": "CLICK Read",
+        "z": "7a402f75c58ac72b",
+        "name": "Read TD1",
+        "memorytype": "TD",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "x": 430,
+        "y": 720,
+        "wires": [
+            [
+                "6bc1fcb9eb97bc23"
+            ]
+        ]
+    },
+    {
+        "id": "e6f61755d9d159e2",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 720,
+        "wires": [
+            [
+                "eb58686781176cc9"
+            ]
+        ]
+    },
+    {
+        "id": "527567eb1b45dd07",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "c73ccbcad7baebbc",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1, 2, 3]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 680,
+        "wires": [
+            [
+                "be9de6f3534a97dc"
+            ]
+        ]
+    },
+    {
+        "id": "6bc1fcb9eb97bc23",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 590,
+        "y": 720,
+        "wires": [
+            [
+                "527567eb1b45dd07"
+            ]
+        ]
+    },
+    {
+        "id": "70492272c2a6f12f",
+        "type": "CLICK Read",
+        "z": "7a402f75c58ac72b",
+        "name": "Read TD1",
+        "memorytype": "TD",
+        "memoryaddress": "1",
+        "memorysize": "1",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 430,
+        "y": 1000,
+        "wires": [
+            [
+                "a69c058a479e2d84"
+            ]
+        ]
+    },
+    {
+        "id": "46ff415a5a4d2b69",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 1000,
+        "wires": [
+            [
+                "70492272c2a6f12f"
+            ]
+        ]
+    },
+    {
+        "id": "e3de83edae479557",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "a69c058a479e2d84",
+        "type": "split",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 590,
+        "y": 1000,
+        "wires": [
+            [
+                "e3de83edae479557"
+            ]
+        ]
+    },
+    {
+        "id": "9c5d711acc7cf447",
+        "type": "comment",
+        "z": "7a402f75c58ac72b",
+        "name": "Summary Timer Registers (TD)",
+        "info": "Outline\n\n(1) Read the T1 value of CLICK CPU using the CLICK Read node.\n(2) If the value can be read by inputting the inject node, set the pass/fail as OK.\n(3) If the read value is incorrect, set the pass/fail to ng.",
+        "x": 210,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "9985cfaa99d58f84",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 1040,
+        "wires": [
+            [
+                "bcd06343c65ffcee"
+            ]
+        ]
+    },
+    {
+        "id": "bcd06343c65ffcee",
+        "type": "CLICK Write",
+        "z": "7a402f75c58ac72b",
+        "name": "TD1",
+        "memorytype": "TD",
+        "memoryaddress": "1",
+        "memorysize": "1",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 410,
+        "y": 1060,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "12c384dc72e564af",
+        "type": "inject",
+        "z": "7a402f75c58ac72b",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[0]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 1080,
+        "wires": [
+            [
+                "bcd06343c65ffcee"
+            ]
+        ]
+    },
+    {
+        "id": "65bd699301c2e7fc",
+        "type": "debug",
+        "z": "7a402f75c58ac72b",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 1360,
+        "wires": []
+    }
+]

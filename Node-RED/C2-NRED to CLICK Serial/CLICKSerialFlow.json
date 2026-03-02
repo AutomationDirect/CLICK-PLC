@@ -1,0 +1,94 @@
+[
+    {
+        "id": "19e6cb4f77826335",
+        "type": "CLICK Write",
+        "z": "01810002dbd0520b",
+        "name": "Write DS",
+        "memorytype": "DS",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 580,
+        "y": 260,
+        "wires": [
+            [
+                "cf513a4c2031e698"
+            ]
+        ]
+    },
+    {
+        "id": "debbc55a087c0bd3",
+        "type": "inject",
+        "z": "01810002dbd0520b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[12,24,36]",
+        "payloadType": "json",
+        "x": 380,
+        "y": 260,
+        "wires": [
+            [
+                "19e6cb4f77826335"
+            ]
+        ]
+    },
+    {
+        "id": "cf513a4c2031e698",
+        "type": "change",
+        "z": "01810002dbd0520b",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "[1]",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 800,
+        "y": 260,
+        "wires": [
+            [
+                "b654cef5ebc5565b"
+            ]
+        ]
+    },
+    {
+        "id": "b654cef5ebc5565b",
+        "type": "CLICK Write",
+        "z": "01810002dbd0520b",
+        "name": "Write C",
+        "memorytype": "C",
+        "memoryaddress": "1",
+        "memorysize": "1",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 1040,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    }
+]

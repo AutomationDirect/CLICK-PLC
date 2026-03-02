@@ -1,0 +1,234 @@
+[
+    {
+        "id": "abbd2c5e98e20e52",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5a1ca2be4d2ea67b",
+        "type": "CLICK Read",
+        "z": "abbd2c5e98e20e52",
+        "name": "Conveyor Run",
+        "memorytype": "Y",
+        "memoryaddress": "1",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 320,
+        "y": 260,
+        "wires": [
+            [
+                "347ad335de9d5a3a",
+                "e60e071f93c8513d"
+            ]
+        ]
+    },
+    {
+        "id": "24ed19b303e5552a",
+        "type": "inject",
+        "z": "abbd2c5e98e20e52",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": ".25",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 260,
+        "wires": [
+            [
+                "5a1ca2be4d2ea67b",
+                "e8376974aef5aaf5"
+            ]
+        ]
+    },
+    {
+        "id": "05cd7ff4575e483d",
+        "type": "debug",
+        "z": "abbd2c5e98e20e52",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload.data",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "347ad335de9d5a3a",
+        "type": "rbe",
+        "z": "abbd2c5e98e20e52",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 510,
+        "y": 300,
+        "wires": [
+            [
+                "05cd7ff4575e483d"
+            ]
+        ]
+    },
+    {
+        "id": "e8376974aef5aaf5",
+        "type": "CLICK Read",
+        "z": "abbd2c5e98e20e52",
+        "name": "Stack Light",
+        "memorytype": "Y",
+        "memoryaddress": "10",
+        "memorysize": "3",
+        "wswap": "OFF",
+        "showErrCode": 0,
+        "showErrText": 0,
+        "x": 310,
+        "y": 420,
+        "wires": [
+            [
+                "79bfbd4773852b06",
+                "d9ecea78388a4297"
+            ]
+        ]
+    },
+    {
+        "id": "79bfbd4773852b06",
+        "type": "function",
+        "z": "abbd2c5e98e20e52",
+        "name": "function 2",
+        "func": "msg.payload = msg.payload.data\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 460,
+        "wires": [
+            [
+                "370c4dfbc52e42d7"
+            ]
+        ]
+    },
+    {
+        "id": "8566052e3a33dd1a",
+        "type": "debug",
+        "z": "abbd2c5e98e20e52",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload.data",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "d9ecea78388a4297",
+        "type": "rbe",
+        "z": "abbd2c5e98e20e52",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 510,
+        "y": 400,
+        "wires": [
+            [
+                "8566052e3a33dd1a"
+            ]
+        ]
+    },
+    {
+        "id": "370c4dfbc52e42d7",
+        "type": "ui_template",
+        "z": "abbd2c5e98e20e52",
+        "group": "ui_group_dashboard",
+        "name": "Stack Light",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "\n<svg width=\"100\" height=\"300\" viewBox=\"0 0 100 180\">\n\n    !-- Stack Light Housing -->\n    <rect x=\"40\" y=\"0\" width=\"20\" height=\"200\" fill=\"#333\" rx=\"10\" />\n\n    <!-- Red Light (Top) -->\n    <rect id=\"redLight\" x=\"30\" y=\"20\" width=\"40\" height=\"40\" fill=\"#550000\" stroke=\"#000\" stroke-width=\"2\" />\n    \n    <!-- Yellow Light (Middle) -->\n    <rect id=\"yellowLight\" x=\"30\" y=\"80\" width=\"40\" height=\"40\" fill=\"#555500\" stroke=\"#000\" stroke-width=\"2\" />\n\n    <!-- Green Light (Bottom) -->\n    <rect id=\"greenLight\" x=\"30\" y=\"140\" width=\"40\" height=\"40\" fill=\"#005500\" stroke=\"#000\" stroke-width=\"2\" />\n\n</svg>\n\n<script>\n(function(scope) {\n  scope.$watch('msg.payload', function(payload) {\n    const [green, yellow, red] = payload || [0, 0, 0];\n\n    const redLight = document.getElementById(\"redLight\");\n    const yellowLight = document.getElementById(\"yellowLight\");\n    const greenLight = document.getElementById(\"greenLight\");\n\n    // Set colors based on payload\n    redLight.setAttribute(\"fill\", red === 1 ? \"red\" : \"#550000\");\n    yellowLight.setAttribute(\"fill\", yellow === 1 ? \"yellow\" : \"#555500\");\n    greenLight.setAttribute(\"fill\", green === 1 ? \"limegreen\" : \"#005500\");\n  });\n})(scope);\n</script>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 690,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e60e071f93c8513d",
+        "type": "ui_template",
+        "z": "abbd2c5e98e20e52",
+        "group": "ui_group_dashboard",
+        "name": "Conveyors",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "\n<svg id=\"conveyorSvg\" width=\"250\" height=\"420\" viewBox=\"0 0 250 420\"></svg>\n\n<script>\n(function(scope) {\n  let interval = null;\n  let angle = 0;\n\n  scope.$watch('msg.payload', function(payload) {\n    const vals = payload.data || [];\n    const svg = document.getElementById(\"conveyorSvg\");\n\n    // Clear previous conveyors\n    while (svg.firstChild) {\n      svg.removeChild(svg.firstChild);\n    }\n\n    const rollers = [];\n\n    vals.forEach((val, i) => {\n      const y = 40 + i * 80;\n      const center = y + 10;\n\n      // Create belt\n      const belt = document.createElementNS(\"http://www.w3.org/2000/svg\", \"rect\");\n      belt.setAttribute(\"id\", `belt${i}`);\n      belt.setAttribute(\"x\", 10);\n      belt.setAttribute(\"y\", y);\n      belt.setAttribute(\"width\", 230);\n      belt.setAttribute(\"height\", 20);\n      belt.setAttribute(\"fill\", val === 1 ? \"green\" : \"#ccc\");\n      svg.appendChild(belt);\n\n      // Create rollers\n      const rollerA = document.createElementNS(\"http://www.w3.org/2000/svg\", \"g\");\n      rollerA.setAttribute(\"id\", `roller${i}a`);\n      rollerA.setAttribute(\"transform\", `rotate(0,20,${center})`);\n      rollerA.innerHTML = generateRollerPaths(20, center);\n      svg.appendChild(rollerA);\n\n      const rollerB = document.createElementNS(\"http://www.w3.org/2000/svg\", \"g\");\n      rollerB.setAttribute(\"id\", `roller${i}b`);\n      rollerB.setAttribute(\"transform\", `rotate(0,230,${center})`);\n      rollerB.innerHTML = generateRollerPaths(230, center);\n      svg.appendChild(rollerB);\n\n      // Create status text\n      const statusText = document.createElementNS(\"http://www.w3.org/2000/svg\", \"text\");\n      statusText.setAttribute(\"id\", `statusText${i}`);\n      statusText.setAttribute(\"x\", 125);\n      statusText.setAttribute(\"y\", y + 40);\n      statusText.setAttribute(\"text-anchor\", \"middle\");\n      statusText.setAttribute(\"font-size\", \"16\");\n      statusText.setAttribute(\"fill\", val === 1 ? \"green\" : \"#333\");\n      statusText.textContent = `Conveyor ${i + 1}: ${val === 1 ? \"RUNNING\" : \"OFF\"}`;\n      svg.appendChild(statusText);\n\n      rollers.push({ a: `roller${i}a`, b: `roller${i}b`, belt: `belt${i}`, text: `statusText${i}`, center });\n    });\n\n    // Animate rollers\n    if (interval) clearInterval(interval);\n    interval = setInterval(() => {\n      angle = (angle + 20) % 360;\n      rollers.forEach((r, i) => {\n        if (vals[i] === 1) {\n          document.getElementById(r.a).setAttribute(\"transform\", `rotate(${angle},20,${r.center})`);\n          document.getElementById(r.b).setAttribute(\"transform\", `rotate(${angle},230,${r.center})`);\n        }\n      });\n    }, 50);\n  });\n\n  function generateRollerPaths(cx, cy) {\n    return `\n      <circle cx=\"${cx}\" cy=\"${cy}\" r=\"12\" fill=\"#eee\" stroke=\"#000\" stroke-width=\"1\"/>\n      <path d=\"M${cx},${cy} L${cx+12},${cy} A12,12 0 0,1 ${cx},${cy+12} Z\" fill=\"#888\" stroke=\"#000\" stroke-width=\"1\"/>\n      <path d=\"M${cx},${cy} L${cx},${cy+12} A12,12 0 0,1 ${cx-12},${cy} Z\" fill=\"#444\" stroke=\"#000\" stroke-width=\"1\"/>\n      <path d=\"M${cx},${cy} L${cx-12},${cy} A12,12 0 0,1 ${cx},${cy-12} Z\" fill=\"#888\" stroke=\"#000\" stroke-width=\"1\"/>\n      <path d=\"M${cx},${cy} L${cx},${cy-12} A12,12 0 0,1 ${cx+12},${cy} Z\" fill=\"#444\" stroke=\"#000\" stroke-width=\"1\"/>\n    `;\n  }\n})(scope);\n</script>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 530,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_group_dashboard",
+        "type": "ui_group",
+        "name": "Simulator Dashboard",
+        "tab": "2cd940d8f0616a26",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2cd940d8f0616a26",
+        "type": "ui_tab",
+        "name": "TEST",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]

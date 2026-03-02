@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <title>C2-NRED Package Compatibility Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .header {
+            position: sticky;
+	    top: 0;
+	    z-index: 1000;
+	    background-color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            height: 40px;
+            margin-right: 20px;
+        }
+        .container {
+            max-width: 1024px;
+            margin: 50px auto;
+            padding: 8px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            width: 50%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #npmPageBtn {
+			background-color: #007bff;  /* Bootstrap blue */
+			color: white;
+			border: none;
+			padding: 8px 12px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+		#npmPageBtn:disabled {
+			background-color: #cccccc;
+			color: #666666;
+			cursor: not-allowed;
+		}
+		button:disabled {
+			background-color: #cccccc;
+			color: #666666;
+			cursor: not-allowed;
+		}
+		body.waiting *,
+		body.waiting *:hover {
+			cursor: wait !important; /* 🔥 Force wait cursor even on hover */
+		}
+		#result {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .note {
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+        }
+		table {
+			width: 100%;
+		}
+		th {
+			border: 1px solid black;
+			padding: 8px;
+			text-align: left;
+			background-color: #f0f0f0;
+		}
+		td {
+			border: 1px solid black;
+			padding: 8px;
+			text-align: left;
+		}
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2 style="margin: 0; padding-left: 20px;"><img src="click.ico" alt="CLICK PLUS Logo" class="logo">CLICK PLUS C2-NRED NodeRED Module</h2>
+        <img src="adc_logo.jpg" alt="AutomationDirect Logo" class="logo">
+    </div>
+
+    <div class="container">
+        <h2>Package Compatibility Finder</h2>
+		<p>Find the best version of a Node-RED package compatible with <strong>Node.js 14.18.1</strong> and <strong>Node-RED 3.0.2</strong>.</p>
+        
+		<label for="packageName">Package Name:</label>
+        <input type="text" id="packageName" placeholder="e.g., node-red-contrib-modbus">
+        <br>
+        
+		<button onclick="findCompatibleVersion()">Find Compatible Version</button>
+		<button id="viewNpmButton" disabled>View on NPM</button>
+
+        <div id="result"></div>
+		
+		<p>To find package names please visit <a href="https://npmjs.com/" target="_blank">npmjs.com</a></p>
+        	<p>For more information about the C2-NRED CLICK module please visit <a href="https://www.automationdirect.com/adc/overview/catalog/programmable_controllers/click_plus_plcs_(stackable_micro_modular)/cpu_option_slot_modules" target="_blank">AutomationDirect.com</a></p>
+		<p>For more information about Node-RED in general please visit <a href="https://nodered.org/" target="_blank">NodeRED.org</a></p>
+		<p class="note"><strong>NOTE:</strong> This is only an aid to find the correct version. ADC does not support or warrant any third-party nodes.</p>
+            </div>
+	<div class="container">	
+		<h2>Frequently Searched Packages</h2>
+		<table>
+			<tr>
+				<th>Package Name</th>
+				<th>Description</th>
+				<th>Link</th>
+			</tr>
+			<tr>
+				<td>node-red-contrib-c2nred-mqtt</td>
+				<td>MQTT Broker for CLICK C2-NRED Node-RED modules</td>
+				<td><a href="https://registry.npmjs.org/node-red-contrib-c2nred-mqtt/-/node-red-contrib-c2nred-mqtt-0.1.0.tgz" class="static-link" target="_blank">Download Link</a></td>
+			</tr>
+			<tr>
+				<td>node-red-contrib-modbus</td>
+				<td>The all-in-one Modbus TCP and Serial contribution package for Node-RED</td>
+				<td><a href="https://registry.npmjs.org/node-red-contrib-modbus/-/node-red-contrib-modbus-5.31.0.tgz" class="static-link" target="_blank">Download Link</a></td>
+			</tr>
+			<tr>
+				<td>node-red-node-email</td>
+				<td>Node-RED nodes to send and receive simple emails.</td>
+				<td><a href="https://registry.npmjs.org/node-red-node-email/-/node-red-node-email-2.2.1.tgz" class="static-link" target="_blank">Download Link</a></td>
+			</tr>
+			<tr>
+				<td>node-red-contrib-fs-ops</td>
+				<td>A Node Red node for performing file system operations.</td>
+				<td><a href="https://registry.npmjs.org/node-red-contrib-fs-ops/-/node-red-contrib-fs-ops-1.6.0.tgz" class="static-link" target="_blank">Download Link</a></td>
+			</tr>
+			<tr>
+				<td> node-red-contrib-murr-impact67pro-iolink-api</td>
+				<td>A collection of various nodes which can be used as a Free example with the Murr IMPACT67 Pro module from Murr Electronic.</td>
+				<td><a href="https://registry.npmjs.org/node-red-contrib-murr-impact67pro-iolink-api/-/node-red-contrib-murr-impact67pro-iolink-api-1.1.25.tgz" class="static-link" target="_blank">Download Link</a></td>
+			</tr>
+		</table>
+	</div>
+	    
+	<!-- Google tag (gtag.js) -->
+        <script src="https://www.googletagmanager.com/gtag/js?id=G-C5JPBW1KYE"></script>
+	<script>
+    		window.dataLayer = window.dataLayer || [];
+    		function gtag(){dataLayer.push(arguments);}
+   		gtag('js', new Date());
+    		gtag('config', 'G-C5JPBW1KYE', { 'debug_mode':true });
+        
+		/*document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('.static-link').forEach(link => {
+				link.addEventListener('click', () => {
+					const href = link.getAttribute('href');
+		
+					// Extract just the package name from the URL
+					const match = href.match(/\/([^/]+)-\d+\.\d+\.\d+\.tgz$/);
+					if (match) {
+						const pkg = match[1];
+						console.log("Tracking download for:", pkg);
+						
+						// Fire a gtag event
+						if (typeof gtag === 'function') {
+							console.log("Logged download for:", pkg);
+							gtag('event', 'download_click', {
+								event_category: 'Static Package Table',
+								event_label: 'Download Package',
+								package: pkg,
+								link: href,
+						});
+					}
+				}
+			});
+		}
+	});*/
+	</script>
+        <script src="script.js"></script> <!-- External JS -->
+    <footer style="text-align: center; padding: 3px; font-size: 0.9em; color: #777;">
+      Version 1.3.5
+    </footer>
+</body>
+</html>
+
