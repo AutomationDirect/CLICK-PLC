@@ -4,6 +4,11 @@ All notable changes to this project will be doucmented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
+## v0.2.1, 2 March 2026
+
+### Added
+- Fixed ReadMe image
+
 ## v0.2.00, 2 March 2026
 
 ### Added
