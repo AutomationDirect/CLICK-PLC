@@ -31,7 +31,7 @@ Just put this node on Node-RED and hit the deploy button. The MQTT Broker will r
 - SSL / TLS
 - Message Persistence (In-memory, LevelDB or MongoDB)
  
-For more information see [AutomationDirect.com C2-NRED Website](https://github.com/AutomationDirect/CLICK-PLC/tree/main/Node-RED/node-red-contrib-c2nred-mqtt)
+For more information see [AutomationDirect.com C2-NRED GitHub](https://github.com/AutomationDirect/CLICK-PLC/tree/main/Node-RED/node-red-contrib-c2nred-mqtt)
 
 ## Server without public IP or behind firewall
 If your server is behind a firewall or you cannot open any ports other than the standard http/https ports, the MQTT broker node can be accessible by public clients through a WebSocket path.
@@ -43,5 +43,6 @@ You can also bind the WebSocket to the root `"/"` path and having `wss://yourser
 ## License
  
  Licensed under [MIT](./LICENSE).
+
 
 
