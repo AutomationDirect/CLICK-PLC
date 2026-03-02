@@ -44,3 +44,4 @@ You can also bind the WebSocket to the root `"/"` path and having `wss://yourser
  
  Licensed under [MIT](./LICENSE).
 
+
