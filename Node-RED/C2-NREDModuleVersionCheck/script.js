@@ -1,195 +1,382 @@
-	// Get the input field and the button
+	// C2-NRED Package Compatibility Finder
+	//
+	// Target runtime of the C2-NRED module.
+	const TARGET_NODE = "14.18.1";
+	const TARGET_NODERED = "3.0.2";
+
+	// Packages with hundreds of releases could otherwise spin for minutes.
+	const TIME_BUDGET_MS = 60000;
+	const MAX_REJECT_ROWS = 12;
+
+	// Node-RED 3.0.2 runs `npm install ... --engine-strict`, so an `engines`
+	// mismatch ANYWHERE in the resolved tree is a hard ENOTSUP failure, not a
+	// warning. That means we have to resolve the full transitive tree the way
+	// npm would - every range to its highest satisfying version - and check
+	// `engines` on each one.
+
+	// ---------------------------------------------------------------- semver
+
+	// Tolerates partial versions ("16" -> 16.0.0), which show up inside
+	// ranges such as ">= 0.10" and "16 - 20".
+	function parseVersion(v) {
+		const m = /^[=v\s]*(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z-.]+))?/.exec(String(v));
+		if (!m) return null;
+		return {
+			major: +m[1],
+			minor: m[2] === undefined ? 0 : +m[2],
+			patch: m[3] === undefined ? 0 : +m[3],
+			pre: m[4] ? m[4].split(".") : []
+		};
+	}
+
+	function comparePre(a, b) {
+		if (!a.length && !b.length) return 0;
+		if (!a.length) return 1;   // no prerelease sorts higher
+		if (!b.length) return -1;
+		for (let i = 0; i < Math.max(a.length, b.length); i++) {
+			const x = a[i], y = b[i];
+			if (x === undefined) return -1;
+			if (y === undefined) return 1;
+			const nx = /^\d+$/.test(x), ny = /^\d+$/.test(y);
+			if (nx && ny) { if (+x !== +y) return +x < +y ? -1 : 1; }
+			else if (nx) return -1;
+			else if (ny) return 1;
+			else if (x !== y) return x < y ? -1 : 1;
+		}
+		return 0;
+	}
+
+	function compareVersions(a, b) {
+		const pa = typeof a === "string" ? parseVersion(a) : a;
+		const pb = typeof b === "string" ? parseVersion(b) : b;
+		if (!pa || !pb) return 0;
+		for (const k of ["major", "minor", "patch"]) {
+			if (pa[k] !== pb[k]) return pa[k] < pb[k] ? -1 : 1;
+		}
+		return comparePre(pa.pre, pb.pre);
+	}
+
+	// Expand one comparator set (the AND-ed half of a `||` union) into a list
+	// of primitive {op, v} comparators.
+	function expandComparatorSet(set) {
+		const out = [];
+		// Close up whitespace between an operator and its version, so that
+		// ">= 0.10" tokenises as one comparator rather than two.
+		const raw = set.trim().replace(/([<>=~^]+)\s+/g, "$1");
+		if (!raw || raw === "*") return out; // matches anything
+
+		// hyphen range: "1.2.3 - 2.3.4"
+		const hyphen = /^(\S+)\s+-\s+(\S+)$/.exec(raw);
+		if (hyphen) {
+			const lo = parseVersion(hyphen[1]);
+			const hi = parseVersion(hyphen[2]);
+			if (lo) out.push({ op: ">=", v: lo });
+			if (hi) {
+				// "1.2" as an upper bound means "< 1.3.0"
+				if (/^\s*\d+\.\d+\.\d+/.test(hyphen[2])) {
+					out.push({ op: "<=", v: hi });
+				} else {
+					out.push({ op: "<", v: { major: hi.major, minor: hi.minor + 1, patch: 0, pre: [] } });
+				}
+			}
+			return out;
+		}
+
+		for (const tok of raw.split(/\s+/)) {
+			const m = /^(\^|~>|~|>=|<=|>|<|=)?\s*v?(\d+|[xX*])(?:\.(\d+|[xX*]))?(?:\.(\d+|[xX*]))?(?:-([0-9A-Za-z-.]+))?/.exec(tok);
+			if (!m) continue;
+			const op = m[1] === "~>" ? "~" : (m[1] || "=");
+			if (/^[xX*]$/.test(m[2])) continue; // "x" / "*" - no constraint
+			const wildMinor = m[3] === undefined || /^[xX*]$/.test(m[3]);
+			const wildPatch = m[4] === undefined || /^[xX*]$/.test(m[4]);
+			const base = {
+				major: +m[2],
+				minor: wildMinor ? 0 : +m[3],
+				patch: wildPatch ? 0 : +m[4],
+				pre: m[5] ? m[5].split(".") : []
+			};
+
+			if (op === "^") {
+				out.push({ op: ">=", v: base });
+				if (base.major > 0 || wildMinor) {
+					out.push({ op: "<", v: { major: base.major + 1, minor: 0, patch: 0, pre: [] } });
+				} else if (base.minor > 0 || wildPatch) {
+					out.push({ op: "<", v: { major: 0, minor: base.minor + 1, patch: 0, pre: [] } });
+				} else {
+					out.push({ op: "<", v: { major: 0, minor: 0, patch: base.patch + 1, pre: [] } });
+				}
+			} else if (op === "~") {
+				out.push({ op: ">=", v: base });
+				if (wildMinor) {
+					out.push({ op: "<", v: { major: base.major + 1, minor: 0, patch: 0, pre: [] } });
+				} else {
+					out.push({ op: "<", v: { major: base.major, minor: base.minor + 1, patch: 0, pre: [] } });
+				}
+			} else if (op === "=" && (wildMinor || wildPatch)) {
+				// "1.2" / "1.2.x" -> >=1.2.0 <1.3.0 ; "1" / "1.x" -> >=1.0.0 <2.0.0
+				out.push({ op: ">=", v: base });
+				out.push(wildMinor
+					? { op: "<", v: { major: base.major + 1, minor: 0, patch: 0, pre: [] } }
+					: { op: "<", v: { major: base.major, minor: base.minor + 1, patch: 0, pre: [] } });
+			} else {
+				out.push({ op: op, v: base });
+			}
+		}
+		return out;
+	}
+
+	function satisfies(version, range) {
+		const pv = parseVersion(version);
+		if (!pv) return false;
+		if (range === undefined || range === null) return true;
+		const r = String(range).trim();
+		if (!r || r === "*" || r === "x" || r === "latest") return true;
+		// URLs, git specs and file paths are not semver - treat as unknown/OK.
+		if (/^(https?:|git|github:|file:|npm:|link:)/i.test(r)) return true;
+
+		for (const set of r.split("||")) {
+			const comps = expandComparatorSet(set);
+			if (!comps.length) return true;
+			// A prerelease only satisfies a range if the range itself mentions
+			// a prerelease on the same [major,minor,patch] tuple.
+			if (pv.pre.length) {
+				const allowed = comps.some(c => c.v.pre.length &&
+					c.v.major === pv.major && c.v.minor === pv.minor && c.v.patch === pv.patch);
+				if (!allowed) continue;
+			}
+			let ok = true;
+			for (const c of comps) {
+				const cmp = compareVersions(pv, c.v);
+				if (c.op === ">=" && !(cmp >= 0)) ok = false;
+				else if (c.op === ">" && !(cmp > 0)) ok = false;
+				else if (c.op === "<=" && !(cmp <= 0)) ok = false;
+				else if (c.op === "<" && !(cmp < 0)) ok = false;
+				else if (c.op === "=" && cmp !== 0) ok = false;
+				if (!ok) break;
+			}
+			if (ok) return true;
+		}
+		return false;
+	}
+
+	// What npm would actually install for this range.
+	function maxSatisfying(versions, range) {
+		let best = null;
+		for (const v of versions) {
+			if (!satisfies(v, range)) continue;
+			if (best === null || compareVersions(v, best) > 0) best = v;
+		}
+		return best;
+	}
+
+	// ------------------------------------------------------------- registry
+
+	const packumentCache = new Map();
+	let fetchCount = 0;
+
+	function getPackument(name) {
+		if (packumentCache.has(name)) return packumentCache.get(name);
+		const p = (async () => {
+			fetchCount++;
+			// Abbreviated packument: ~60% smaller, still carries
+			// dependencies / optionalDependencies / engines / dist.
+			const res = await fetch("https://registry.npmjs.org/" + name.replace(/\//g, "%2F"), {
+				headers: { Accept: "application/vnd.npm.install-v1+json" }
+			});
+			if (!res.ok) return null;
+			return res.json();
+		})();
+		packumentCache.set(name, p);
+		return p;
+	}
+
+	// --------------------------------------------------------- tree walking
+
+	// Returns null if the whole tree is installable, otherwise the first
+	// offending package with the path that pulled it in.
+	async function findEngineConflict(name, range, path, passed) {
+		const doc = await getPackument(name);
+		// Unknown package (404, private, tarball URL dep) - can't judge, allow.
+		if (!doc || !doc.versions) return null;
+
+		const version = maxSatisfying(Object.keys(doc.versions), range);
+		if (!version) {
+			return {
+				name: name,
+				version: String(range),
+				required: "no published version satisfies this range",
+				path: path.slice()
+			};
+		}
+
+		const key = name + "@" + version;
+		if (passed.has(key)) return null;
+		passed.add(key); // also breaks dependency cycles
+
+		const pkg = doc.versions[version];
+		const eng = pkg.engines || {};
+		const here = path.concat(key);
+
+		if (eng.node && !satisfies(TARGET_NODE, eng.node)) {
+			passed.delete(key);
+			return { name: name, version: version, required: "node " + eng.node, path: here };
+		}
+		if (eng["node-red"] && !satisfies(TARGET_NODERED, eng["node-red"])) {
+			passed.delete(key);
+			return { name: name, version: version, required: "node-red " + eng["node-red"], path: here };
+		}
+
+		// npm skips optional dependencies that fail their engine check, so they
+		// are not install blockers. peerDependencies are not auto-installed by
+		// npm 6, so they are not walked either.
+		const optional = pkg.optionalDependencies || {};
+		const deps = pkg.dependencies || {};
+		for (const dep of Object.keys(deps)) {
+			if (Object.prototype.hasOwnProperty.call(optional, dep)) continue;
+			const conflict = await findEngineConflict(dep, deps[dep], here, passed);
+			if (conflict) {
+				passed.delete(key);
+				return conflict;
+			}
+		}
+		return null;
+	}
+
+	// ------------------------------------------------------------------ UI
+
 	const packageInput = document.getElementById("packageName");
 	const viewNpmButton = document.getElementById("viewNpmButton");
 
-	// Disable 'View npm' button when user types in the input field
 	packageInput.addEventListener("input", () => {
-		viewNpmButton.disabled = true; // Disable button when input changes
+		viewNpmButton.disabled = true;
 	});
-		
-	// Event listener for the 'Find Compatible Version' button click
+
+	function esc(s) {
+		return String(s).replace(/[&<>"']/g, c =>
+			({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+	}
+
+	function renderRejected(rejected) {
+		if (!rejected.length) return "";
+		let html = "<details><summary>Why newer versions were rejected (" +
+			rejected.length + ")</summary><table><tr><th>Version</th>" +
+			"<th>Blocked by</th><th>Requires</th><th>Pulled in via</th></tr>";
+		for (const r of rejected.slice(0, MAX_REJECT_ROWS)) {
+			html += "<tr><td>" + esc(r.version) + "</td><td>" +
+				esc(r.conflict.name + "@" + r.conflict.version) + "</td><td>" +
+				esc(r.conflict.required) + "</td><td style='font-size:0.85em'>" +
+				r.conflict.path.map(esc).join(" &rsaquo; ") + "</td></tr>";
+		}
+		if (rejected.length > MAX_REJECT_ROWS) {
+			html += "<tr><td colspan='4'>&hellip; and " +
+				(rejected.length - MAX_REJECT_ROWS) + " older versions</td></tr>";
+		}
+		return html + "</table></details>";
+	}
+
 	async function findCompatibleVersion() {
-        	document.body.classList.add('waiting'); // ⏳ Override all cursors
-			
+		document.body.classList.add("waiting");
+
 		const packageName = document.getElementById("packageName").value.trim();
-        	const resultDiv = document.getElementById("result");
-		const npmPageBtn = document.getElementById("npmPageBtn");
-		//npmPageBtn.disabled = true;
-		//npmPageBtn.onclick = null;
-		//const packageInput = document.getElementById('packageName').value;
-		
-	        if (!packageName) {
-	        	resultDiv.innerHTML = "<p style='color: red;'>Please enter a package name.</p>";
-			document.body.classList.remove('waiting');
-	        	return;
-	        }
-	
-	        try {
-	        	const response = await fetch(`https://registry.npmjs.org/${packageName}`);
-	        	if (!response.ok) throw new Error("Package not found.");
-	
-	                const data = await response.json();
-	                let allVersions;
-			if(data.versions!=undefined)
-				allVersions = Object.keys(data.versions);
-			else {
-				throw new Error("Package not found.");
+		const resultDiv = document.getElementById("result");
+
+		if (!packageName) {
+			resultDiv.innerHTML = "<p style='color: red;'>Please enter a package name.</p>";
+			document.body.classList.remove("waiting");
+			return;
+		}
+
+		packumentCache.clear();
+		fetchCount = 0;
+
+		try {
+			const data = await getPackument(packageName);
+			if (!data || !data.versions) throw new Error("Package not found.");
+
+			// Sort by semver, newest first - do NOT rely on registry key order,
+			// which is publish order (a patch to an old line can be published
+			// after a new major).
+			const allVersions = Object.keys(data.versions)
+				.filter(v => { const p = parseVersion(v); return p && !p.pre.length; })
+				.sort((a, b) => compareVersions(b, a));
+
+			if (!allVersions.length) throw new Error("No stable versions published.");
+			const highestVersion = allVersions[0];
+
+			let bestMatch = null;
+			let timedOut = false;
+			const rejected = [];
+			const deadline = Date.now() + TIME_BUDGET_MS;
+
+			for (const version of allVersions) {
+				if (Date.now() > deadline) { timedOut = true; break; }
+
+				resultDiv.innerHTML = "<p>Resolving dependency tree for <strong>" +
+					esc(packageName) + "@" + esc(version) + "</strong>&hellip; (" +
+					fetchCount + " packages queried, " + rejected.length + " versions ruled out)</p>";
+
+				const conflict = await findEngineConflict(packageName, version, [], new Set());
+				if (!conflict) { bestMatch = version; break; }
+
+				rejected.push({ version: version, conflict: conflict });
 			}
-	                let bestMatch = null;
-			const highestVersion = allVersions[allVersions.length - 1]; // <-- this gets the highest version
-	
-	                for (let version of allVersions.reverse()) { // Iterate from newest to oldest
-	                    	const packageInfo = data.versions[version];
-	                    	const requiredNodeVersion = packageInfo.engines?.node || "Unknown";
-	                    	const requiredNRVersion = packageInfo.engines?.["node-red"] || "Unknown";
-	                    	const dependencies = packageInfo.dependencies || {};
-	
-	                    // Check compatibility of module with Node.js and Node-RED
-	                    	if (isCompatible(requiredNodeVersion, "14.18.1") && isCompatible(requiredNRVersion, "3.0.2")) {
-					let dependencyname = "";
-					let dependencyver = "";
-					let goodDependencies = true;				
-					//iterate through each dependency.  If not compatible, break and check next module version
-					for (let x in dependencies) {
-						dependencyname = x;
-						if((dependencies[x].slice(0,1)!="~") && (dependencies[x].slice(0,1)!="^"))
-							dependencyname="~vm2";
-						dependencyver = dependencies[x].replace("^", "").replace("~", "").trim();
-						const response = await fetch(`https://registry.npmjs.org/${dependencyname}`);
-						if (response.ok) {
-							const data = await response.json();
-							const packageInfo = data.versions[dependencyver];
-							const requiredNodeVersion = packageInfo.engines?.node || "Unknown";
-							const requiredNRVersion = packageInfo.engines?.["node-red"] || "Unknown";
-							// Check compatibility of dependency
-							if (!isCompatible(requiredNodeVersion, "14.18.1") || !isCompatible(requiredNRVersion, "3.0.2")) {
-								goodDependencies=false;	
-								break;
-							}
-						} 
-					}
-					if(goodDependencies) {	//Once all dependencies are good, you have a good module version
-						bestMatch = version;
-						break;
-					}
-	                    	}
-	                }
 
-	                if (bestMatch) {
-							const bestPkg = data.versions[bestMatch];
-							
-							const downloadUrlFromRegistry = bestPkg?.dist?.tarball;
-							
-							const fileName = packageName.startsWith("@") ? packageName.split("/")[1] : packageName;
-							const downloadUrl =
-							    downloadUrlFromRegistry ||
-							    `https://registry.npmjs.org/${encodeURIComponent(packageName)}/-/${fileName}-${bestMatch}.tgz`;
+			if (bestMatch) {
+				const bestPkg = data.versions[bestMatch];
+				const fileName = packageName.startsWith("@") ? packageName.split("/")[1] : packageName;
+				const downloadUrl = (bestPkg && bestPkg.dist && bestPkg.dist.tarball) ||
+					("https://registry.npmjs.org/" + encodeURIComponent(packageName) +
+					 "/-/" + fileName + "-" + bestMatch + ".tgz");
+				const npmUrl = "https://www.npmjs.com/package/" + packageName + "/v/" + bestMatch;
 
-	                    	const npmUrl = `https://www.npmjs.com/package/${packageName}/v/${bestMatch}`;
-				
 				viewNpmButton.onclick = () => window.open(npmUrl, "_blank");
-				resultDiv.innerHTML = `
-	                        	<p style='color: green;'>✔ The best compatible version of <strong>${packageName}</strong> is <strong>v${bestMatch}</strong>, which works with Node.js 14.18.1 and Node-RED 3.0.2.</p>
-	                        	<h3>${downloadUrl}</h3>
-					<p>Copy the above URL into your browser or click this link to</p>
-					<p><a href="${downloadUrl}" target="_blank">Download the package (v${bestMatch})</a></p>
-	                    	`;
-				// Enable the 'View npm' button after a successful result
-				viewNpmButton.disabled = false; // Enable the button
+				viewNpmButton.disabled = false;
 
-				// 🔥 Google Analytics custom event
-				console.log("Attempting to fire GA event...");
-				if (typeof gtag === 'function') {
-				    console.log("gtag is defined. Firing event...");
-				    gtag('event', 'find_compatible_version_click', {
-				        'event_category': 'Package Search',
-				        'event_label': 'Compatibility Check',
-				        'package_name': packageName,
-				        'compatible_version': bestMatch,
-				        'highest_version': highestVersion,
-				    });
-				} else {
-				    console.warn("gtag is not defined yet.");
+				let html = "<p style='color: green;'>&#10004; The best compatible version of <strong>" +
+					esc(packageName) + "</strong> is <strong>v" + esc(bestMatch) +
+					"</strong>, which works with Node.js " + TARGET_NODE +
+					" and Node-RED " + TARGET_NODERED + ".</p>" +
+					"<h3>" + esc(downloadUrl) + "</h3>" +
+					"<p>Copy the above URL into your browser or click this link to</p>" +
+					"<p><a href='" + esc(downloadUrl) + "' target='_blank'>Download the package (v" +
+					esc(bestMatch) + ")</a></p>";
+				if (bestMatch !== highestVersion) html += renderRejected(rejected);
+				resultDiv.innerHTML = html;
+
+				if (typeof gtag === "function") {
+					gtag("event", "find_compatible_version_click", {
+						event_category: "Package Search",
+						event_label: "Compatibility Check",
+						package_name: packageName,
+						compatible_version: bestMatch,
+						highest_version: highestVersion
+					});
 				}
-				
-	                } else {
-	                    resultDiv.innerHTML = `<p style='color: red;'>✘ No compatible version of <strong>${packageName}</strong> found for Node.js 14.18.1 and Node-RED 3.0.2.</p>`;
-	                }
-	        } catch (error) {
-	        	resultDiv.innerHTML = `<p style='color: red;'>Error: ${error.message}</p>`;
-	        } finally {
-			document.body.classList.remove('waiting');
-		}
+			} else {
+				resultDiv.innerHTML =
+					"<p style='color: red;'>&#10008; " + (timedOut
+						? "Gave up after checking the newest " + rejected.length + " versions of <strong>" +
+						  esc(packageName) + "</strong> &mdash; none work with Node.js " + TARGET_NODE +
+						  " and Node-RED " + TARGET_NODERED + ". Older versions may, but were not checked."
+						: "No compatible version of <strong>" + esc(packageName) +
+						  "</strong> found for Node.js " + TARGET_NODE +
+						  " and Node-RED " + TARGET_NODERED + ".") +
+					"</p>" + renderRejected(rejected);
 
-	
+				if (typeof gtag === "function") {
+					gtag("event", "find_compatible_version_click", {
+						event_category: "Package Search",
+						event_label: "Compatibility Check",
+						package_name: packageName,
+						compatible_version: "none",
+						highest_version: highestVersion
+					});
+				}
+			}
+		} catch (error) {
+			document.getElementById("result").innerHTML =
+				"<p style='color: red;'>Error: " + esc(error.message) + "</p>";
+		} finally {
+			document.body.classList.remove("waiting");
+		}
 	}
-					
-	function padArray(arr) {
-		while (arr.length < 3) {
-			arr.splice(arr.length, 0, '0');
-		}
-		return arr.map(Number);
-	}
-	  
-	function isCompatible(required, current) {
-	        let reqarray=[];
-		let curarray=[];
-		if (!required || required === "Unknown") return true;
-	        if (required.startsWith(">=")) {
-			required = required.replace(">=", "").trim();
-			reqarray = padArray(required.split("."));
-			curarray = padArray(current.split("."));
-			for (let i = 0; i<3 ; i++) {
-				if (curarray[i]<reqarray[i])
-					return false;
-				if (curarray[i]>reqarray[i])
-					return true;
-			}
-			return true;
-		}
-	        if (required.startsWith(">")) {
-			required = required.replace(">", "").trim();
-			reqarray = padArray(required.split("."));
-			curarray = padArray(current.split("."));
-			for (let i = 0; i<3 ; i++) {
-				if (curarray[i]<reqarray[i])
-					return false;
-				if (curarray[i]>reqarray[i])
-					return true;
-			}
-			return false;
-		}
-		if (required.startsWith("<=")) {
-			required = required.replace(">=", "").trim();
-			reqarray = padArray(required.split("."));
-			curarray = padArray(current.split("."));
-			for (let i = 0; i<3 ; i++) {
-				if (curarray[i]<reqarray[i])
-					return true;
-				if (curarray[i]>reqarray[i])
-					return false;
-			}
-			return true;
-		}
-	        if (required.startsWith("<")) {
-			required = required.replace(">=", "").trim();
-			reqarray = padArray(required.split("."));
-			curarray = padArray(current.split("."));
-			for (let i = 0; i<3 ; i++) {
-				if (curarray[i]<reqarray[i])
-					return true;
-				if (curarray[i]>reqarray[i])
-					return false;
-			}
-			return false;
-		}
-	        if (required.startsWith("^") || required.startsWith("~")) return checkCaretTilde(required, current);
-	        return current === required;
-	}
-	
-	function checkCaretTilde(required, current) {
-	        let minVersion = required.replace("^", "").replace("~", "").trim();
-        	return current.startsWith(minVersion.split(".")[0]); // Approximate match
-        }
-
-
