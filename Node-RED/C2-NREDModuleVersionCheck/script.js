@@ -172,19 +172,44 @@
 	// ------------------------------------------------------------- registry
 
 	const packumentCache = new Map();
+	// Packages whose engines we could not read, and why. Surfaced in the result
+	// so a green answer is never mistaken for "the whole tree was checked".
+	const unverified = new Map();
 	let fetchCount = 0;
+
+	// A dependency spec npm resolves from somewhere other than the npm registry.
+	// There is no packument to fetch for these.
+	const NON_REGISTRY_SPEC = /^(https?:|git|git\+|github:|gitlab:|bitbucket:|file:|link:|workspace:|portal:)/i;
 
 	function getPackument(name) {
 		if (packumentCache.has(name)) return packumentCache.get(name);
 		const p = (async () => {
 			fetchCount++;
-			// Abbreviated packument: ~60% smaller, still carries
-			// dependencies / optionalDependencies / engines / dist.
-			const res = await fetch("https://registry.npmjs.org/" + name.replace(/\//g, "%2F"), {
-				headers: { Accept: "application/vnd.npm.install-v1+json" }
-			});
-			if (!res.ok) return null;
-			return res.json();
+			let res;
+			try {
+				// Abbreviated packument: ~60% smaller, still carries
+				// dependencies / optionalDependencies / engines / dist.
+				res = await fetch("https://registry.npmjs.org/" + name.replace(/\//g, "%2F"), {
+					headers: { Accept: "application/vnd.npm.install-v1+json" }
+				});
+			} catch (e) {
+				// A rejected fetch is a network/CORS failure, not an HTTP status.
+				// registry.npmjs.org omits Access-Control-Allow-Origin on 404s for
+				// SCOPED names, so a private/unpublished @scope/pkg rejects here and
+				// would otherwise abort the entire search.
+				unverified.set(name, "not on the npm registry (or blocked by CORS)");
+				return null;
+			}
+			if (!res.ok) {
+				unverified.set(name, "registry returned HTTP " + res.status);
+				return null;
+			}
+			try {
+				return await res.json();
+			} catch (e) {
+				unverified.set(name, "malformed registry response");
+				return null;
+			}
 		})();
 		packumentCache.set(name, p);
 		return p;
@@ -195,6 +220,15 @@
 	// Returns null if the whole tree is installable, otherwise the first
 	// offending package with the path that pulled it in.
 	async function findEngineConflict(name, range, path, passed) {
+		// Tarball-URL / git / file deps have no packument. Asking the registry for
+		// one is both pointless and actively harmful: a scoped miss rejects the
+		// fetch. node-red-contrib-modbus depends on @open-p4nr/modbus-serial by
+		// Cloudsmith URL, which is what made it fail with "Failed to fetch".
+		if (range && NON_REGISTRY_SPEC.test(String(range).trim())) {
+			unverified.set(name, "installed from a URL, not the npm registry");
+			return null;
+		}
+
 		const doc = await getPackument(name);
 		// Unknown package (404, private, tarball URL dep) - can't judge, allow.
 		if (!doc || !doc.versions) return null;
@@ -256,6 +290,18 @@
 			({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 	}
 
+	function renderUnverified() {
+		if (!unverified.size) return "";
+		let html = "<p style='color:#b36b00'>&#9888; " + unverified.size +
+			" package" + (unverified.size === 1 ? " was" : "s were") +
+			" not checked &mdash; the result above covers the rest of the tree only.</p>" +
+			"<table><tr><th>Package</th><th>Reason</th></tr>";
+		unverified.forEach(function (reason, name) {
+			html += "<tr><td>" + esc(name) + "</td><td>" + esc(reason) + "</td></tr>";
+		});
+		return html + "</table>";
+	}
+
 	function renderRejected(rejected) {
 		if (!rejected.length) return "";
 		let html = "<details><summary>Why newer versions were rejected (" +
@@ -287,6 +333,7 @@
 		}
 
 		packumentCache.clear();
+		unverified.clear();
 		fetchCount = 0;
 
 		try {
@@ -340,6 +387,7 @@
 					"<p>Copy the above URL into your browser or click this link to</p>" +
 					"<p><a href='" + esc(downloadUrl) + "' target='_blank'>Download the package (v" +
 					esc(bestMatch) + ")</a></p>";
+				html += renderUnverified();
 				if (bestMatch !== highestVersion) html += renderRejected(rejected);
 				resultDiv.innerHTML = html;
 
@@ -361,7 +409,7 @@
 						: "No compatible version of <strong>" + esc(packageName) +
 						  "</strong> found for Node.js " + TARGET_NODE +
 						  " and Node-RED " + TARGET_NODERED + ".") +
-					"</p>" + renderRejected(rejected);
+					"</p>" + renderUnverified() + renderRejected(rejected);
 
 				if (typeof gtag === "function") {
 					gtag("event", "find_compatible_version_click", {
